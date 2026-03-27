@@ -27,7 +27,7 @@ jobs:
           buildozer android debug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: searcherofpdf-apk
           path: bin/ICICIProApp-0.1-debug.apk
