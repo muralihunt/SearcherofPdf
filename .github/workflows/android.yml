@@ -6,33 +6,32 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04   # Preinstalled tar, stable environment
+    runs-on: ubuntu-22.04
 
     env:
       ANDROID_HOME: ${{ github.workspace }}/android-sdk
       PATH: ${{ github.workspace }}/android-sdk/cmdline-tools/latest/bin:$PATH
 
     steps:
-      # Checkout repository safely (git clone, avoids tar issues)
       - name: Checkout Repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          clean: true
+          lfs: false
+          submodules: false
 
-      # Setup a supported Python version
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # Install all system dependencies Buildozer needs
       - name: Install system dependencies
         run: |
           sudo apt update
           sudo apt install -y openjdk-17-jdk git wget unzip zip python3-pip tar
           pip install --upgrade cython buildozer
 
-      # Download and install Android SDK, build-tools, platform-tools
       - name: Install Android SDK & Build Tools
         run: |
           mkdir -p $ANDROID_HOME/cmdline-tools
@@ -42,12 +41,9 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
 
-      # Build the APK
       - name: Build APK
-        run: |
-          buildozer android debug
+        run: buildozer android debug
 
-      # Upload APK artifact
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
